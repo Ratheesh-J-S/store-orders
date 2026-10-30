@@ -60,7 +60,7 @@ The React app calls the Laravel JSON API over HTTP using `fetch`. The base URL c
 ## 3. Technology Stack
 
 | Layer                   | Technology                                            | Version (verified)                                         |
-| ----------------------- | ----------------------------------------------------- | ---------------------------------------------------------- | ------------------- |
+| ----------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
 | Backend framework       | Laravel                                               | 12.70.2 (`composer.lock`)                                  |
 | Language (backend)      | PHP                                                   | `^8.2` required; verified on 8.3.6                         |
 | Database (intended)     | MySQL                                                 | `.env.example` defaults to `mysql`, DB name `store_orders` |
@@ -79,7 +79,7 @@ The React app calls the Laravel JSON API over HTTP using `fetch`. The base URL c
 | Server-state library    | TanStack React Query                                  | 5.105.0 (provider only)                                    |
 | Linting                 | Oxlint                                                | 1.90.0                                                     |
 | Frontend hosting config | `vercel.json` SPA rewrite                             |                                                            |
-| Node.js                 | Vite 8 requires `^20.19.0                             | >=22.12.0`                                                 | verified on 22.22.2 |
+| Node.js                 | Vite 8 requires `^20.19.0                             | >=22.12.0` verified on 22.22.2                             |
 
 ---
 
