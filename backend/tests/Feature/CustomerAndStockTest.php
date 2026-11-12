@@ -37,7 +37,7 @@ class CustomerAndStockTest extends TestCase
     {
         config(['inventory.low_stock_threshold' => 10]);
         Product::factory()->create(['name' => 'Low', 'stock' => 3]);
-        Product::factory()->create(['name' => 'Edge', 'stock' => 10]); // not below 10
+        Product::factory()->create(['name' => 'Edge', 'stock' => 10]);
         Product::factory()->create(['name' => 'Plenty', 'stock' => 50]);
 
         $this->getJson('/api/products/low-stock')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.name', 'Low');

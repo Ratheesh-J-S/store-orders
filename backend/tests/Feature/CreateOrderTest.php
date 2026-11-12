@@ -33,7 +33,6 @@ class CreateOrderTest extends TestCase
             'amount_given' => 300,
         ])->assertCreated();
 
-        // a: 200 + 36 tax ; b: 50 + 6 tax  => 250 / 42 / 292
         $res->assertJsonPath('data.subtotal', '250.00')
             ->assertJsonPath('data.tax_total', '42.00')
             ->assertJsonPath('data.grand_total', '292.00')
@@ -54,10 +53,13 @@ class CreateOrderTest extends TestCase
         $this->postJson('/api/orders', [
             'email' => 'a@example.com',
             'name' => 'A',
-            'items' => [['product_id' => $ok->id, 'quantity' => 3], ['product_id' => $low->id, 'quantity' => 2]],
+            'amount_given' => 1000,
+            'items' => [
+                ['product_id' => $ok->id, 'quantity' => 3],
+                ['product_id' => $low->id, 'quantity' => 2]
+            ],
         ])->assertStatus(422)->assertJsonPath('shortages.0.available', 1);
 
-        // Whole order rolled back: no partial deduction, no order, no customer, no job.
         $this->assertSame(5, $ok->fresh()->stock);
         $this->assertSame(1, $low->fresh()->stock);
         $this->assertDatabaseCount('orders', 0);
@@ -69,7 +71,15 @@ class CreateOrderTest extends TestCase
     {
         Queue::fake();
         $p = $this->product(['stock' => 1]);
-        $payload = fn($email) => ['email' => $email, 'name' => 'X', 'items' => [['product_id' => $p->id, 'quantity' => 1]]];
+        $payload = fn($email) =>
+        [
+            'email' => $email,
+            'name' => 'X',
+            'amount_given' => 118,
+            'items' => [
+                ['product_id' => $p->id, 'quantity' => 1]
+            ]
+        ];
 
         $this->postJson('/api/orders', $payload('one@example.com'))->assertCreated();
         $this->postJson('/api/orders', $payload('two@example.com'))->assertStatus(422);
@@ -86,8 +96,11 @@ class CreateOrderTest extends TestCase
         $this->postJson('/api/orders', [
             'email' => 'd@example.com',
             'name' => 'D',
-            'items' => [['product_id' => $p->id, 'quantity' => 2], ['product_id' => $p->id, 'quantity' => 2]],
-        ])->assertStatus(422); // 4 > 3 even though each line alone would fit
+            'items' => [
+                ['product_id' => $p->id, 'quantity' => 2],
+                ['product_id' => $p->id, 'quantity' => 2]
+            ],
+        ])->assertStatus(422);
     }
 
     public function test_validation_errors(): void
@@ -121,7 +134,11 @@ class CreateOrderTest extends TestCase
         $c = Customer::factory()->create(['email' => 'old@example.com']);
         $p = $this->product();
 
-        $this->postJson('/api/orders', ['email' => 'old@example.com', 'items' => [['product_id' => $p->id, 'quantity' => 1]]])->assertCreated();
+        $this->postJson('/api/orders', [
+            'email' => 'old@example.com',
+            'amount_given' => 118,
+            'items' => [['product_id' => $p->id, 'quantity' => 1]]
+        ])->assertCreated();
         $this->assertDatabaseCount('customers', 1);
         $this->assertSame(1, $c->orders()->count());
     }

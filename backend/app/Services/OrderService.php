@@ -16,6 +16,7 @@ class OrderService
     /**
      * @param array{email:string,name?:?string,items:array<int,array{product_id:int,quantity:int}>,amount_given?:mixed} $data
      */
+
     public function create(array $data): Order
     {
         $wanted = [];
@@ -33,10 +34,15 @@ class OrderService
             foreach ($wanted as $id => $qty) {
                 $p = $products[$id];
                 if ($p->stock < $qty) {
-                    $shortages[] = ['product_id' => $id, 'name' => $p->name, 'requested' => $qty, 'available' => $p->stock];
+                    $shortages[] = [
+                        'product_id' => $id,
+                        'name' => $p->name,
+                        'requested' => $qty,
+                        'available' => $p->stock
+                    ];
                 }
             }
-            if ($shortages) {
+            if (!empty($shortages)) {
                 throw new InsufficientStockException($shortages);
             }
 
